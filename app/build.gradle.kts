@@ -65,4 +65,9 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.kotlinx.serialization.json) // For kotlin DSL
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.kotlinx.serialization) // support for kotlin serialization converter
+
 }

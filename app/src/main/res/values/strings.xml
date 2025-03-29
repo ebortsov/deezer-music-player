@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">DeezerMusicPlayer</string>
+    <string name="search_for_tracks_hint">Search for tracks</string>
 </resources>
