@@ -70,4 +70,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.kotlinx.serialization) // support for kotlin serialization converter
 
+    // Glide
+    implementation(libs.glide)
+
 }

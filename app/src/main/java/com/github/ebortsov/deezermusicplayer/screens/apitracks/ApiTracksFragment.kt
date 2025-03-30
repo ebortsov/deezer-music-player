@@ -1,22 +1,137 @@
 package com.github.ebortsov.deezermusicplayer.screens.apitracks
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import com.github.ebortsov.deezermusicplayer.databinding.FragmentApiTracksBinding
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.fragment.fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.ebortsov.deezermusicplayer.R
+import com.github.ebortsov.deezermusicplayer.databinding.FragmentTracksBinding
+import com.github.ebortsov.deezermusicplayer.screens.apitracks.adapter.TrackListAdapter
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+
+@Serializable
+object ApiTracksDestination
+
+fun NavGraphBuilder.apiTracksDestination() {
+    fragment<ApiTracksFragment, ApiTracksDestination>()
+}
 
 class ApiTracksFragment : Fragment() {
-    private lateinit var binding: FragmentApiTracksBinding
+    private lateinit var binding: FragmentTracksBinding
+    private lateinit var trackListAdapter: TrackListAdapter
+    private val viewModel: ApiTracksViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentApiTracksBinding.inflate(inflater, container, false)
+        binding = FragmentTracksBinding.inflate(inflater, container, false)
         return binding.root
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        setupUiControls()
+
+        // Configure recycler view
+        with(binding.tracksRecyclerView) {
+            layoutManager = LinearLayoutManager(requireActivity())
+
+            trackListAdapter = TrackListAdapter()
+            binding.tracksRecyclerView.adapter = trackListAdapter
+        }
+
+        // Start tracking the state and update the views correspondingly
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collectLatest { uiState ->
+                    updateUi(uiState)
+                }
+            }
+        }
+    }
+
+    private fun setupUiControls() {
+        // Configure the "search" action on the search view
+        binding.searchView.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                searchTracks(v.text.toString())
+
+                // Close soft keyboard
+                hideKeyboard()
+
+                // Drop the focus from the search field
+                v.clearFocus()
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun hideKeyboard() {
+        // Astonishing api for hiding the keyboard
+        val imm =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val view = requireActivity().currentFocus
+        view?.let {
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+    }
+
+    private fun updateUi(uiState: UiState) {
+        // Whenever the uiState changes this method is called
+
+        // Update the displayed search query in search view
+        binding.searchView.setText(uiState.searchQuery)
+
+        // Send the currently stored tracks to the recycler view
+        trackListAdapter.submitList(uiState.loadedTracks)
+
+        // Handle the loading state
+        when (uiState.loadingState) {
+            UiState.LoadingState.IDLE -> {
+                // Hide the progress indicator
+                binding.loadingProgressIndicator.isVisible = false
+            }
+
+            UiState.LoadingState.LOADING -> {
+                // Show the progress indicator
+                binding.loadingProgressIndicator.isVisible = true
+            }
+
+            UiState.LoadingState.ERROR -> {
+                // Hide the progress indicator
+                binding.loadingProgressIndicator.isVisible = false
+
+                // Show snackbar with error message
+                Snackbar.make(
+                    binding.tracksRecyclerView,
+                    resources.getString(R.string.error_message_snackbar),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun searchTracks(query: String) {
+        viewModel.searchTracks(query)
+    }
 }
+
+

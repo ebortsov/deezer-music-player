@@ -14,5 +14,5 @@ interface DeezerApi {
     ): SearchResultApiModel
 
     @GET("track/{id}")
-    suspend fun getTrack(@Path("id") trackId: String): TrackApiModel
+    suspend fun getTrack(@Path("id") trackId: Long): TrackApiModel
 }

@@ -19,7 +19,7 @@ class DeezerApiDataSource(private val deezerApiService: DeezerApi) : ApiDataSour
         return result.data.map { it.toTrack() }
     }
 
-    override suspend fun getTrack(trackId: String): Track {
+    override suspend fun getTrack(trackId: Long): Track {
         val result = deezerApiService.getTrack(trackId)
 
         return result.toTrack()
