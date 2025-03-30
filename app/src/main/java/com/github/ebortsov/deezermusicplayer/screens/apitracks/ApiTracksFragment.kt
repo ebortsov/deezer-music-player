@@ -13,11 +13,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.media3.common.MediaItem
+import androidx.media3.session.MediaController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.ebortsov.deezermusicplayer.R
 import com.github.ebortsov.deezermusicplayer.databinding.FragmentTracksBinding
+import com.github.ebortsov.deezermusicplayer.player.PlaybackServiceManager
+import com.github.ebortsov.deezermusicplayer.screens.apitracks.adapter.OnTrackClickListener
 import com.github.ebortsov.deezermusicplayer.screens.apitracks.adapter.TrackListAdapter
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
@@ -35,6 +40,9 @@ class ApiTracksFragment : Fragment() {
     private lateinit var binding: FragmentTracksBinding
     private lateinit var trackListAdapter: TrackListAdapter
     private val viewModel: ApiTracksViewModel by viewModels()
+    private val playbackServiceManager by lazy {
+        PlaybackServiceManager(this, requireContext())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,27 +54,38 @@ class ApiTracksFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setupUiControls()
+        playbackServiceManager.setOnControllerIsReadyListener { mediaController ->
+            setupUiControls(mediaController)
 
-        // Configure recycler view
-        with(binding.tracksRecyclerView) {
-            layoutManager = LinearLayoutManager(requireActivity())
-
-            trackListAdapter = TrackListAdapter()
-            binding.tracksRecyclerView.adapter = trackListAdapter
-        }
-
-        // Start tracking the state and update the views correspondingly
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collectLatest { uiState ->
-                    updateUi(uiState)
+            // Start tracking the state and update the views correspondingly
+            viewLifecycleOwner.lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.uiState.collectLatest { uiState ->
+                        updateUi(uiState)
+                    }
                 }
             }
         }
     }
 
-    private fun setupUiControls() {
+    private fun setupUiControls(mediaController: MediaController) {
+        val onTrackClickListener = OnTrackClickListener { v, track ->
+            // setup playlist to consist of only this song
+            mediaController.clearMediaItems()
+            mediaController.addMediaItem(MediaItem.fromUri(track.previewLink.toString()))
+
+            // Start the playback
+            mediaController.play()
+        }
+
+        // Configure recycler view
+        with(binding.tracksRecyclerView) {
+            layoutManager = LinearLayoutManager(requireActivity())
+
+            trackListAdapter = TrackListAdapter(onTrackClickListener)
+            binding.tracksRecyclerView.adapter = trackListAdapter
+        }
+
         // Configure the "search" action on the search view
         binding.searchView.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {

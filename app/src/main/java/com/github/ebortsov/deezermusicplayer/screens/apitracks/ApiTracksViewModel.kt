@@ -43,7 +43,7 @@ class ApiTracksViewModel(
             try {
                 val tracks = tracksRepository.searchTrackInNetwork(query)
 
-                // The tracks has been successfully found. Update the ui state
+                // The tracks have been successfully found. Update the ui state
                 _uiState.update {
                     it.copy(loadingState = UiState.LoadingState.IDLE, loadedTracks = tracks)
                 }
