@@ -15,6 +15,7 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.fragment.fragment
+import com.bumptech.glide.Glide
 import com.github.ebortsov.deezermusicplayer.databinding.FragmentPlaybackBinding
 import com.github.ebortsov.deezermusicplayer.player.PlaybackServiceManager
 import com.github.ebortsov.deezermusicplayer.R
@@ -30,7 +31,7 @@ private const val SEEKBAR_MAX = 1000
 @Serializable
 object PlaybackDestination
 
-fun NavGraphBuilder.apiTracksDestination() {
+fun NavGraphBuilder.playbackDestination() {
     fragment<PlaybackFragment, PlaybackDestination>()
 }
 
@@ -129,10 +130,17 @@ class PlaybackFragment : Fragment() {
     }
 
     private fun updateUiMetadata(metadata: MediaMetadata) {
-        binding.trackTitleTextView.text = metadata.title ?: ""
-        binding.artistNameTextView.text = metadata.artist ?: ""
-        binding.albumTitleTextView.text = metadata.albumTitle ?: ""
+        binding.trackTitleTextView.text = metadata.title ?: "" // Add track title
+        binding.artistNameTextView.text = metadata.artist ?: "" // Add artist name
+        binding.albumTitleTextView.text = metadata.albumTitle ?: "" // Add album title
 
+        // Add the album cover
+        metadata.artworkUri?.let { artworkUri ->
+            Glide.with(requireContext())
+                .load(artworkUri)
+                .placeholder(R.drawable.ic_image)
+                .into(binding.trackCoverImageView)
+        }
     }
 
     private fun updateUi(mediaController: MediaController) {
