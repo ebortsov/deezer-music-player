@@ -13,16 +13,26 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.C
 import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.fragment.fragment
 import com.github.ebortsov.deezermusicplayer.databinding.FragmentPlaybackBinding
 import com.github.ebortsov.deezermusicplayer.player.PlaybackServiceManager
 import com.github.ebortsov.deezermusicplayer.R
 import com.github.ebortsov.deezermusicplayer.utils.formatMilliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 private const val SEEKBAR_MAX = 1000
+
+@Serializable
+object PlaybackDestination
+
+fun NavGraphBuilder.apiTracksDestination() {
+    fragment<PlaybackFragment, PlaybackDestination>()
+}
 
 /*
 * Screen that connects to the `PlaybackService` and show the current playback state
