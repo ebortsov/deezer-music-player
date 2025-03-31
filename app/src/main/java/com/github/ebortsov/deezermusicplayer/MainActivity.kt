@@ -10,6 +10,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.github.ebortsov.deezermusicplayer.screens.apitracks.ApiTracksDestination
 import com.github.ebortsov.deezermusicplayer.screens.apitracks.apiTracksDestination
+import com.github.ebortsov.deezermusicplayer.screens.playback.playbackDestination
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
             startDestination = ApiTracksDestination
         ) {
             apiTracksDestination()
+            playbackDestination()
         }
     }
 }

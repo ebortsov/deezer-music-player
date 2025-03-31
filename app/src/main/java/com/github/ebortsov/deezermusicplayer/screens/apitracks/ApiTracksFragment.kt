@@ -13,7 +13,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.fragment.findNavController
@@ -22,8 +21,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.ebortsov.deezermusicplayer.R
 import com.github.ebortsov.deezermusicplayer.databinding.FragmentTracksBinding
 import com.github.ebortsov.deezermusicplayer.player.PlaybackServiceManager
+import com.github.ebortsov.deezermusicplayer.player.createMediaItemFromTrack
 import com.github.ebortsov.deezermusicplayer.screens.apitracks.adapter.OnTrackClickListener
 import com.github.ebortsov.deezermusicplayer.screens.apitracks.adapter.TrackListAdapter
+import com.github.ebortsov.deezermusicplayer.screens.playback.PlaybackDestination
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -69,13 +70,16 @@ class ApiTracksFragment : Fragment() {
     }
 
     private fun setupUiControls(mediaController: MediaController) {
-        val onTrackClickListener = OnTrackClickListener { v, track ->
+        val onTrackClickListener = OnTrackClickListener { _, track ->
             // setup playlist to consist of only this song
             mediaController.clearMediaItems()
-            mediaController.addMediaItem(MediaItem.fromUri(track.previewLink.toString()))
+            mediaController.addMediaItem(createMediaItemFromTrack(track))
 
             // Start the playback
             mediaController.play()
+
+            // Navigate to player screen
+            findNavController().navigate(PlaybackDestination)
         }
 
         // Configure recycler view
