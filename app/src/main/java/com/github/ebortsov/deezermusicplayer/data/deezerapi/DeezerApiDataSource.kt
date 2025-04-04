@@ -7,6 +7,7 @@ import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.github.ebortsov.deezermusicplayer.data.toTrack
+import okhttp3.MediaType.Companion.toMediaType
 
 /*
 * DataSource class that works with deezer api
@@ -43,5 +44,5 @@ private fun getSerializationConverterFactory(): Converter.Factory {
     val jsonStringFormat = Json { ignoreUnknownKeys = true }
     val contentType = "application/json"
 
-    return jsonStringFormat.asConverterFactory(MediaType.get(contentType))
+    return jsonStringFormat.asConverterFactory(contentType.toMediaType())
 }

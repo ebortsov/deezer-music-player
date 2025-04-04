@@ -22,7 +22,7 @@ class TrackViewHolder(
 
         // Load the image
         Glide.with(binding.root.context)
-            .load(track.album.coverMediumUri.toString())
+            .load(track.album.coverUri.toString())
             .placeholder(R.drawable.ic_image)
             .into(binding.trackCoverImageView)
 

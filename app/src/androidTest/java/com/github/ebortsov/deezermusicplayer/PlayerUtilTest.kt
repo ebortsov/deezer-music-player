@@ -12,6 +12,7 @@ import org.junit.runner.RunWith
 import org.junit.Assert.*
 import java.net.URI
 
+
 @RunWith(AndroidJUnit4::class)
 class PlayerUtilTest {
     @Test
@@ -24,17 +25,11 @@ class PlayerUtilTest {
             artist = Artist(
                 id = 15219,
                 name = "Dreamcatcher",
-                pictureUri = stubUri,
-                pictureSmallUri = stubUri,
-                pictureMediumUri = stubUri,
-                pictureBigUri = stubUri
             ),
             album = Album(
                 id = 471967745,
                 title = "1st Album [Dystopia : The Tree of Language]",
-                coverSmallUri = stubUri,
-                coverMediumUri = stubUri,
-                coverBigUri = stubUri
+                coverUri = stubUri
             )
         )
         val mediaItem = createMediaItemFromTrack(track)
@@ -45,6 +40,6 @@ class PlayerUtilTest {
         assertEquals(track.title, metadata.title)
         assertEquals(track.album.title, metadata.albumTitle)
         assertEquals(track.artist.name, metadata.artist)
-        assertEquals(track.album.coverBigUri.toString(), metadata.artworkUri.toString())
+        assertEquals(track.album.coverUri.toString(), metadata.artworkUri.toString())
     }
 }

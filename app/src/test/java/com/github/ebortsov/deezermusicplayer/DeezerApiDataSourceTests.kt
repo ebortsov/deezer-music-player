@@ -39,17 +39,11 @@ class DeezerApiDataSourceTests {
             artist = Artist(
                 id = 15219,
                 name = "Dreamcatcher",
-                pictureUri = stubUri,
-                pictureSmallUri = stubUri,
-                pictureMediumUri = stubUri,
-                pictureBigUri = stubUri
             ),
             album = Album(
                 id = 471967745,
                 title = "1st Album [Dystopia : The Tree of Language]",
-                coverSmallUri = stubUri,
-                coverMediumUri = stubUri,
-                coverBigUri = stubUri
+                coverUri = stubUri,
             )
         )
         val resultTrack = runBlocking {

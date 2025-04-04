@@ -1,11 +1,14 @@
 package com.github.ebortsov.deezermusicplayer.model
 
+import kotlinx.serialization.Serializable
 import java.net.URI
 
+@Serializable
 data class Track(
     val id: Long,
     val title: String,
-    val previewLink: URI, // let's believe the preview link does not expire...
+    @Serializable(with = JavaURISerializer::class)
+    val previewUri: URI,
     val artist: Artist,
     val album: Album
 )

@@ -12,10 +12,6 @@ fun ArtistApiModel.toArtist(): Artist {
     return Artist(
         id = id,
         name = name,
-        pictureUri = URI.create(picture),
-        pictureSmallUri = URI.create(picture_small),
-        pictureMediumUri = URI.create(picture_medium),
-        pictureBigUri = URI.create(picture_big)
     )
 }
 
@@ -23,9 +19,7 @@ fun AlbumApiModel.toAlbum(): Album {
     return Album(
         id = id,
         title = title,
-        coverSmallUri = URI.create(cover_small),
-        coverMediumUri = URI.create(cover_medium),
-        coverBigUri = URI.create(cover_big)
+        coverUri = URI.create(cover_xl),
     )
 }
 
@@ -33,7 +27,7 @@ fun TrackApiModel.toTrack(): Track {
     return Track(
         id = id,
         title = title,
-        previewLink = URI.create(preview),
+        previewUri = URI.create(preview),
         artist = artist.toArtist(),
         album = album.toAlbum()
     )

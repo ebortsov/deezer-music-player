@@ -10,12 +10,12 @@ fun createMediaItemFromTrack(track: Track): MediaItem {
         .setTitle(track.title)
         .setArtist(track.artist.name)
         .setAlbumTitle(track.album.title)
-        .setArtworkUri(Uri.parse(track.album.coverBigUri.toString()))
+        .setArtworkUri(Uri.parse(track.album.coverUri.toString()))
         .build()
 
     val mediaItem = MediaItem
         .Builder()
-        .setUri(track.previewLink.toString())
+        .setUri(track.previewUri.toString())
         .setMediaMetadata(metadata)
         .build()
 
