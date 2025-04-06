@@ -59,6 +59,9 @@ class TrackInfoDataSourceTest {
 
             val insertedTracks = trackInfoDataSource.getTracks()
             assertFalse(tracks[0] in insertedTracks)
+
+            assertFalse(trackInfoDataSource.isPresent(tracks[0]))
+            assertTrue(trackInfoDataSource.isPresent(tracks[1]))
         }
     }
 

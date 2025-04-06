@@ -23,4 +23,8 @@ class TrackInfoDataSource(
     suspend fun clearTracks() {
         trackInfoDao.clearTable()
     }
+
+    suspend fun isPresent(track: Track): Boolean {
+        return trackInfoDao.findTrack(track.id).isNotEmpty()
+    }
 }

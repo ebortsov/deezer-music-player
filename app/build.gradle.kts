@@ -81,6 +81,7 @@ dependencies {
 
     // Worker
     implementation(libs.androidx.work.runtime.ktx)
+    androidTestImplementation(libs.androidx.work.testing) // For testing WorkManager
 
     // Glide
     implementation(libs.glide)

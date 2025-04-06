@@ -1,4 +1,4 @@
-package com.github.ebortsov.deezermusicplayer.screens.apitracks
+package com.github.ebortsov.deezermusicplayer.screens.tracklist.apitracks
 
 import android.content.Context
 import android.os.Bundle
@@ -22,9 +22,10 @@ import com.github.ebortsov.deezermusicplayer.R
 import com.github.ebortsov.deezermusicplayer.databinding.FragmentTracksBinding
 import com.github.ebortsov.deezermusicplayer.player.PlaybackServiceManager
 import com.github.ebortsov.deezermusicplayer.player.createMediaItemFromTrack
-import com.github.ebortsov.deezermusicplayer.screens.apitracks.adapter.OnTrackClickListener
-import com.github.ebortsov.deezermusicplayer.screens.apitracks.adapter.TrackListAdapter
+import com.github.ebortsov.deezermusicplayer.screens.tracklist.adapter.OnTrackClickListener
+import com.github.ebortsov.deezermusicplayer.screens.tracklist.adapter.TrackListAdapter
 import com.github.ebortsov.deezermusicplayer.screens.playback.PlaybackDestination
+import com.github.ebortsov.deezermusicplayer.screens.tracklist.adapter.OnTrackDownloadListener
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -82,11 +83,15 @@ class ApiTracksFragment : Fragment() {
             findNavController().navigate(PlaybackDestination)
         }
 
+        val onTrackDownloadListener = OnTrackDownloadListener { _, track ->
+            viewModel.downloadTrack(track)
+        }
+
         // Configure recycler view
         with(binding.tracksRecyclerView) {
             layoutManager = LinearLayoutManager(requireActivity())
 
-            trackListAdapter = TrackListAdapter(onTrackClickListener)
+            trackListAdapter = TrackListAdapter(onTrackClickListener, onTrackDownloadListener)
             binding.tracksRecyclerView.adapter = trackListAdapter
         }
 

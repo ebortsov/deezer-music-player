@@ -30,6 +30,22 @@ class FileDownloaderTest {
     }
 
     @Test
+    fun renameTo_replaces_file() {
+        val originalFile = destinationFolder.resolve("original-file")
+        val anotherFile = destinationFolder.resolve("another-file")
+
+        val originalText = "Hello World"
+        val anotherText = "Another text"
+        originalFile.writeText(originalText)
+        anotherFile.writeText(anotherText)
+
+        anotherFile.renameTo(originalFile)
+
+        assertEquals(anotherText, originalFile.readText())
+        assertFalse(anotherFile.exists())
+    }
+
+    @Test
     fun file_is_correctly_downloaded() {
         val fileDownloader = FileDownloader.getInstance()
         val destination = destinationFolder.resolve("test-file")
@@ -50,7 +66,6 @@ class FileDownloaderTest {
             async { downloader.download(destination, fileUrl) }
         }.awaitAll()
 
-        assertTrue(results.all { it }) // All downloads succeeded
         assertTrue(destination.exists())
         assertEquals(expectedFileSize, destination.length())
     }

@@ -6,10 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.createGraph
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import com.github.ebortsov.deezermusicplayer.screens.apitracks.ApiTracksDestination
-import com.github.ebortsov.deezermusicplayer.screens.apitracks.apiTracksDestination
+import com.github.ebortsov.deezermusicplayer.screens.tracklist.apitracks.ApiTracksDestination
+import com.github.ebortsov.deezermusicplayer.screens.tracklist.apitracks.apiTracksDestination
 import com.github.ebortsov.deezermusicplayer.screens.playback.playbackDestination
 
 class MainActivity : AppCompatActivity() {

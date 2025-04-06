@@ -10,7 +10,7 @@ fun createStubTracks(): List<Track> {
         Track(
             2394714525,
             "Scream",
-            URI.create("https://file-examples.com/wp-content/storage/2017/11/file_example_MP3_2MG.mp3"),
+            URI.create("https://file-examples.com/storage/fe2465184067ef97996fb41/2017/11/file_example_MP3_5MG.mp3"),
             artist = Artist(
                 id = 15219,
                 name = "Dreamcatcher",
@@ -24,7 +24,7 @@ fun createStubTracks(): List<Track> {
         Track(
             2394714526,
             "BOCA",
-            URI.create("https://file-examples.com/wp-content/storage/2017/11/file_example_MP3_1MG.mp3"),
+            URI.create("https://file-examples.com/storage/fe2465184067ef97996fb41/2017/11/file_example_MP3_1MG.mp3"),
             artist = Artist(
                 id = 15219,
                 name = "Dreamcatcher",
@@ -32,13 +32,13 @@ fun createStubTracks(): List<Track> {
             album = Album(
                 id = 471967746,
                 title = "Dystopia: Lose Myself",
-                coverUri = URI.create("https://upload.wikimedia.org/wikipedia/en/6/6e/Dreamcatcher_-_Dystopia-_Lose_Myself.png"),
+                coverUri = URI.create("https://file-examples.com/storage/fe2465184067ef97996fb41/2017/10/file_example_PNG_2100kB.png"),
             )
         ),
         Track(
             2394714527,
             "Deja Vu",
-            URI.create("https://file-examples.com/wp-content/storage/2017/11/file_example_MP3_5MG.mp3"),
+            URI.create("https://file-examples.com/storage/fe2465184067ef97996fb41/2017/11/file_example_MP3_5MG.mp3"),
             artist = Artist(
                 id = 15219,
                 name = "Dreamcatcher",
@@ -46,22 +46,23 @@ fun createStubTracks(): List<Track> {
             album = Album(
                 id = 471967747,
                 title = "Raid of Dream",
-                coverUri = URI.create("https://upload.wikimedia.org/wikipedia/en/0/0b/Dreamcatcher_-_Raid_of_Dream.png"),
+                coverUri = URI.create("https://file-examples.com/storage/fe2465184067ef97996fb41/2017/10/file_example_PNG_3MB.png"),
             )
         ),
-        Track(
-            2394714528,
-            "Odd Eye",
-            URI.create("https://file-examples.com/wp-content/storage/2017/11/file_example_MP3_700KB.mp3"),
-            artist = Artist(
-                id = 15219,
-                name = "Dreamcatcher",
-            ),
-            album = Album(
-                id = 471967748,
-                title = "Dystopia: Road to Utopia",
-                coverUri = URI.create("https://upload.wikimedia.org/wikipedia/en/1/1e/Dreamcatcher_-_Dystopia-_Road_to_Utopia.png"),
-            )
-        )
     )
 }
+
+val invalidTrack = Track(
+    2394714527,
+    "Deja Vu",
+    URI.create("https://this-url-does-not-exist-abacaba1337.mp3"),
+    artist = Artist(
+        id = 15219,
+        name = "Dreamcatcher",
+    ),
+    album = Album(
+        id = 471967747,
+        title = "Raid of Dream",
+        coverUri = URI.create("https://file-examples.com/storage/fe2465184067ef97996fb41/2017/10/file_example_PNG_3MB.png"),
+    )
+)

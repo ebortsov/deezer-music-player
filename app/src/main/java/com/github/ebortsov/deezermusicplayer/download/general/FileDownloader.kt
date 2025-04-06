@@ -2,8 +2,6 @@ package com.github.ebortsov.deezermusicplayer.download.general
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -11,7 +9,6 @@ import okhttp3.ResponseBody
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "FileDownloader"
 
@@ -37,22 +34,30 @@ class FileDownloader private constructor() {
 
         // `Call.execute` is blocking so perform the call on Dispatchers.IO
         return withContext(Dispatchers.IO) {
-            val response = try {
-                call.execute()
+            try {
+                val response = call.execute()
+
+                if (!response.isSuccessful) {
+                    Log.e(TAG, "download: response if not successful: ${response.message}")
+                    return@withContext false
+                }
+
+                val tmpDestination = (destination.parentFile ?: File("")).resolve(
+                    destination.name + ".tmp"
+                ) // /foo/bar/file.txt -> /foo/bar/file.txt.tmp
+
+                destination.delete()
+                saveResponseBodyToFile(
+                    tmpDestination,
+                    response.body
+                ).takeIf { it }?.also {
+                    tmpDestination.renameTo(destination)
+
+                    Log.i(TAG, "File from $url is saved to $destination")
+                } ?: false
             } catch (ex: Exception) {
                 Log.e(TAG, "download: $ex")
                 return@withContext false
-            }
-
-            if (!response.isSuccessful) {
-                Log.e(TAG, "download: response if not successful: ${response.message}")
-                return@withContext false
-            }
-
-            fileMutexMap.getOrPut(destination) { Mutex() }.withLock {
-                saveResponseBodyToFile(destination, response.body)
-            }.also {
-                fileMutexMap.remove(destination)
             }
         }
     }
@@ -65,13 +70,13 @@ class FileDownloader private constructor() {
         if (body == null)
             return false
 
+        destination.delete()
         var inputStream: InputStream? = null
 
         try {
+            destination.createNewFile()
             val destinationStream = FileOutputStream(destination, false)
-
             inputStream = body.byteStream()
-
             destinationStream.use {
                 var readBytes: Int
                 val buffer = ByteArray(size = 64 * 1024) // 64 kb buffer
@@ -79,8 +84,6 @@ class FileDownloader private constructor() {
                     destinationStream.write(buffer, 0, readBytes)
                 }
             }
-
-            Log.i(TAG, "File is downloaded to $destination")
             return true
         } catch (ex: Exception) {
             Log.e(TAG, "saveResponseBodyToFile: $ex")
@@ -91,8 +94,6 @@ class FileDownloader private constructor() {
     }
 
     companion object {
-        private val fileMutexMap = ConcurrentHashMap<File, Mutex>()
-
         private var instance: FileDownloader? = null
         fun initialize() {
             instance = FileDownloader()

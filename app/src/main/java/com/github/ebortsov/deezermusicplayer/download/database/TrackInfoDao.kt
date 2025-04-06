@@ -24,4 +24,7 @@ interface TrackInfoDao {
 
     @Query("DELETE FROM track_info")
     suspend fun clearTable()
+
+    @Query("SELECT track FROM track_info WHERE track_id = :trackId")
+    suspend fun findTrack(trackId: Long): List<Track>
 }

@@ -1,4 +1,4 @@
-package com.github.ebortsov.deezermusicplayer.screens.apitracks.adapter
+package com.github.ebortsov.deezermusicplayer.screens.tracklist.adapter
 
 import androidx.recyclerview.widget.DiffUtil
 import com.github.ebortsov.deezermusicplayer.model.Track

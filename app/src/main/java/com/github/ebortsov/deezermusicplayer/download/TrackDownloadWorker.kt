@@ -49,22 +49,38 @@ class TrackDownloadWorker(
             return Result.failure()
         }
 
-        withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.IO) {
             val trackDownloadJob = async {
-                fileDownloader.download(File(URI.create(trackDestination)), track.previewUri.toString())
-            }
-            val trackCoverDownloadJob = async {
-                fileDownloader.download(File(URI.create(trackCoverDestination)), track.album.coverUri.toString())
+                fileDownloader.download(
+                    File(URI.create(trackDestination)),
+                    track.previewUri.toString()
+                )
             }
 
-            if (trackDownloadJob.await() && trackCoverDownloadJob.await()) {
+            val trackCoverDownloadJob = async {
+                fileDownloader.download(
+                    File(URI.create(trackCoverDestination)),
+                    track.album.coverUri.toString()
+                )
+            }
+            val trackDownloadResult = trackDownloadJob.await()
+            val trackCoverDownloadResult = trackCoverDownloadJob.await()
+
+            if (trackDownloadResult && trackCoverDownloadResult) {
                 val localTrack = track.copy(
                     previewUri = URI.create(trackDestination),
                     album = track.album.copy(coverUri = URI.create(trackDestination))
                 )
                 trackInfoDataSource.insertTrack(localTrack)
+                Log.i(TAG, "doWork: success")
+                Result.success()
+            } else {
+                Log.i(
+                    TAG,
+                    "doWork: failure; trackDownloadResult = $trackDownloadResult; trackCoverDownloadResult = $trackCoverDownloadResult"
+                )
+                Result.failure()
             }
         }
-        return Result.success()
     }
 }

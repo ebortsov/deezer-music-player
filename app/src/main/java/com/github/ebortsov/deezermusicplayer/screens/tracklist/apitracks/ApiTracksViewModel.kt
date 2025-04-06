@@ -1,9 +1,10 @@
-package com.github.ebortsov.deezermusicplayer.screens.apitracks
+package com.github.ebortsov.deezermusicplayer.screens.tracklist.apitracks
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.ebortsov.deezermusicplayer.data.TracksRepository
+import com.github.ebortsov.deezermusicplayer.download.TrackLocalDataSource
 import com.github.ebortsov.deezermusicplayer.model.Track
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +25,8 @@ data class UiState(
 private const val TAG = "ApiTracksViewModel"
 
 class ApiTracksViewModel(
-    private val tracksRepository: TracksRepository = TracksRepository()
+    private val tracksRepository: TracksRepository = TracksRepository(),
+    private val trackLocalDataSource: TrackLocalDataSource = TrackLocalDataSource.getInstance()
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         UiState(
@@ -71,4 +73,9 @@ class ApiTracksViewModel(
         }
     }
 
+    fun downloadTrack(track: Track) {
+        viewModelScope.launch {
+            trackLocalDataSource.downloadTrack(track)
+        }
+    }
 }
