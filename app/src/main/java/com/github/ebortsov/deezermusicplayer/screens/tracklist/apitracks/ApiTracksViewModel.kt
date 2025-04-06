@@ -26,7 +26,6 @@ private const val TAG = "ApiTracksViewModel"
 
 class ApiTracksViewModel(
     private val tracksRepository: TracksRepository = TracksRepository(),
-    private val trackLocalDataSource: TrackLocalDataSource = TrackLocalDataSource.getInstance()
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         UiState(
@@ -75,7 +74,7 @@ class ApiTracksViewModel(
 
     fun downloadTrack(track: Track) {
         viewModelScope.launch {
-            trackLocalDataSource.downloadTrack(track)
+            tracksRepository.downloadTrack(track)
         }
     }
 }

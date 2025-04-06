@@ -128,7 +128,7 @@ class ApiTracksFragment : Fragment() {
         // Update the displayed search query in search view
         binding.searchView.setText(uiState.searchQuery)
 
-        // Send the currently stored tracks to the recycler view
+        // Send the fetched to the recycler view
         trackListAdapter.submitList(uiState.loadedTracks)
 
         // Handle the loading state

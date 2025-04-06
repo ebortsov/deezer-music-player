@@ -17,8 +17,8 @@ class App : Application() {
         TrackLocalDataSource.initialize(
             applicationContext,
             TrackInfoDataSource(TrackInfoDatabase.getInstance()),
-            applicationContext.getExternalFilesDir(Environment.DIRECTORY_MUSIC)!!.resolve(applicationContext.packageName),
-            applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!.resolve(applicationContext.packageName)
+            applicationContext.getExternalFilesDir(Environment.DIRECTORY_MUSIC)!!,
+            applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
         )
     }
 }

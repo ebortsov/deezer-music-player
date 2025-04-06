@@ -9,6 +9,7 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.github.ebortsov.deezermusicplayer.download.database.TrackInfoDataSource
 import com.github.ebortsov.deezermusicplayer.model.Track
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -81,18 +82,25 @@ class TrackLocalDataSource private constructor(
         return trackInfoDataSource.getTracksAsFlow()
     }
 
-    suspend fun removeTrack(track: Track) {
-        trackInfoDataSource.removeTrack(track)
+    suspend fun removeTrack(track: Track): Boolean {
+        return try {
+            trackInfoDataSource.removeTrack(track)
 
-        val trackDestination =
-            getTrackRelatedItemFile(tracksDownloadDir, track) // where the track is stored
-        val trackCoverDestination = getTrackRelatedItemFile(
-            trackCoversDownloadDir,
-            track
-        ) // where the track cover is stored
+            val trackDestination =
+                getTrackRelatedItemFile(tracksDownloadDir, track) // where the track is stored
+            val trackCoverDestination = getTrackRelatedItemFile(
+                trackCoversDownloadDir,
+                track
+            ) // where the track cover is stored
 
-        trackDestination.delete()
-        trackCoverDestination.delete()
+            trackDestination.delete()
+            trackCoverDestination.delete()
+            true
+        } catch (ex: Exception) {
+            if (ex is CancellationException) throw ex
+            Log.e(TAG, "removeTrack: $ex")
+            false
+        }
     }
 
     private fun getTrackRelatedItemFile(baseDir: File, track: Track, suffix: String = ""): File {
