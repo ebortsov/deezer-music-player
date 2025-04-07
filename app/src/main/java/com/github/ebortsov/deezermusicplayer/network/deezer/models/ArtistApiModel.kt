@@ -1,4 +1,4 @@
-package com.github.ebortsov.deezermusicplayer.data.deezerapi.apimodels
+package com.github.ebortsov.deezermusicplayer.network.deezer.models
 
 import kotlinx.serialization.Serializable
 

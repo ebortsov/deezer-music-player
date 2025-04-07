@@ -1,8 +1,8 @@
-package com.github.ebortsov.deezermusicplayer.data
+package com.github.ebortsov.deezermusicplayer.data.remote
 
-import com.github.ebortsov.deezermusicplayer.data.deezerapi.apimodels.AlbumApiModel
-import com.github.ebortsov.deezermusicplayer.data.deezerapi.apimodels.ArtistApiModel
-import com.github.ebortsov.deezermusicplayer.data.deezerapi.apimodels.TrackApiModel
+import com.github.ebortsov.deezermusicplayer.network.deezer.models.AlbumApiModel
+import com.github.ebortsov.deezermusicplayer.network.deezer.models.ArtistApiModel
+import com.github.ebortsov.deezermusicplayer.network.deezer.models.TrackApiModel
 import com.github.ebortsov.deezermusicplayer.model.Album
 import com.github.ebortsov.deezermusicplayer.model.Artist
 import com.github.ebortsov.deezermusicplayer.model.Track

@@ -1,12 +1,12 @@
-package com.github.ebortsov.deezermusicplayer.data.deezerapi
+package com.github.ebortsov.deezermusicplayer.network.deezer
 
-import com.github.ebortsov.deezermusicplayer.data.deezerapi.apimodels.SearchResultApiModel
-import com.github.ebortsov.deezermusicplayer.data.deezerapi.apimodels.TrackApiModel
+import com.github.ebortsov.deezermusicplayer.network.deezer.models.SearchResultApiModel
+import com.github.ebortsov.deezermusicplayer.network.deezer.models.TrackApiModel
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface DeezerApi {
+interface DeezerService {
     @GET("search")
     suspend fun searchTracks(
         @Query("q") query: String,

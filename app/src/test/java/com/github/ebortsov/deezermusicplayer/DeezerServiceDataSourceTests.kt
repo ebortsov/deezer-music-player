@@ -9,7 +9,7 @@ import org.junit.Test
 import org.junit.Assert.assertEquals
 import java.net.URI
 
-class DeezerApiDataSourceTests {
+class DeezerServiceDataSourceTests {
     private val deezerApiDataSource = DeezerApiDataSource.createUsingRetrofit()
 
     @Test
