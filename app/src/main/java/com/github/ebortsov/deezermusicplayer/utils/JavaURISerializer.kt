@@ -1,4 +1,4 @@
-package com.github.ebortsov.deezermusicplayer.model
+package com.github.ebortsov.deezermusicplayer.utils
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

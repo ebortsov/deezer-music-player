@@ -1,5 +1,6 @@
 package com.github.ebortsov.deezermusicplayer.model
 
+import com.github.ebortsov.deezermusicplayer.utils.JavaURISerializer
 import kotlinx.serialization.Serializable
 import java.net.URI
 
