@@ -3,7 +3,7 @@ package com.github.ebortsov.deezermusicplayer.data.remote
 import com.github.ebortsov.deezermusicplayer.model.Track
 import com.github.ebortsov.deezermusicplayer.network.deezer.DeezerService
 
-class TracksRemoteDeezerDataSource(
+class TracksRemoteDataSourceDeezer(
     private val deezerService: DeezerService
 ) : TracksRemoteDataSource {
     override suspend fun searchTracks(searchQuery: String): List<Track> {

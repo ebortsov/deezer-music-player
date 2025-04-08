@@ -3,15 +3,16 @@ package com.github.ebortsov.deezermusicplayer.data.local
 import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
+import androidx.work.ListenableWorker
+import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.github.ebortsov.deezermusicplayer.download.general.FileDownloader
+import com.github.ebortsov.deezermusicplayer.download.FileDownloader
 import com.github.ebortsov.deezermusicplayer.model.Track
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.io.PrintWriter
 import java.net.URI
 
 private const val TAG = "TrackDownloadWorker"
@@ -74,12 +75,7 @@ class TrackDownloadWorker(
 
                 // Save the file as json file
                 val trackJsonFile = File(URI.create(trackJsonDestination))
-                val trackJsonFileWriter = PrintWriter(trackJsonFile)
-                trackJsonFileWriter.use { writer ->
-                    writer.write(
-                        Json.encodeToString<Track>(localTrack)
-                    )
-                }
+                trackJsonFile.writeText(Json.encodeToString<Track>(localTrack))
 
                 Log.i(TAG, "doWork: success")
                 Result.success()
@@ -90,6 +86,22 @@ class TrackDownloadWorker(
                 )
                 Result.failure()
             }
+        }
+    }
+}
+
+class TrackDownloadWorkerFactory(private val fileDownloader: FileDownloader) : WorkerFactory() {
+    override fun createWorker(
+        appContext: Context,
+        workerClassName: String,
+        workerParameters: WorkerParameters
+    ): ListenableWorker? {
+        return when (workerClassName) {
+            TrackDownloadWorker::class.java.name ->
+                TrackDownloadWorker(fileDownloader, appContext, workerParameters)
+
+            else ->
+                null
         }
     }
 }

@@ -5,30 +5,39 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.github.ebortsov.deezermusicplayer.download.general.FileDownloader
 import com.github.ebortsov.deezermusicplayer.model.Track
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 
-private const val TAG = "TracksLocalFilesDataSource"
+private const val TAG = "TracksLocalDataSourceFile"
 
-class TracksLocalFilesDataSource(
+class TracksLocalDataSourceFile(
     private val workManager: WorkManager,
-    private val fileDownloader: FileDownloader,
-    private val tracksDestination: File,
-    private val trackCoversDestination: File,
-    private val trackJsonsDestination: File
+    private val tracksDestination: Path,
+    private val trackCoversDestination: Path,
+    private val trackJsonsDestination: Path
 ) : TracksLocalDataSource {
+    init {
+        // Create the folders for the destinations if they don't exist
+        for (destination in listOf(
+            tracksDestination,
+            trackJsonsDestination,
+            trackCoversDestination
+        )) {
+            Files.createDirectories(destination)
+            check(Files.isWritable(destination))
+        }
+    }
+
     override suspend fun downloadTrack(track: Track): Boolean {
-        // We cannot know which file type corresponds to the track (flac, mp3 etc.)
-        val trackDestinationUri = tracksDestination.resolve("${track.id}-track").toURI()
-
-        // We cannot know which file type corresponds to the track cover (jpg, png etc.)
-        val trackCoverDestinationUri = tracksDestination.resolve("${track.id}-cover").toURI()
-
-        val trackJsonDestinationUri = tracksDestination.resolve("${track.id}.json").toURI()
+        val trackDestinationUri = tracksDestination.resolve("${track.id}-track").toUri()
+        val trackCoverDestinationUri = trackCoversDestination.resolve("${track.id}-cover").toUri()
+        val trackJsonDestinationUri = tracksDestination.resolve("${track.id}.json").toUri()
 
         val workRequest = OneTimeWorkRequestBuilder<TrackDownloadWorker>()
             .setInputData(
@@ -58,12 +67,37 @@ class TracksLocalFilesDataSource(
         }
     }
 
-    override suspend fun getTracks(): List<Track> {
-
+    override suspend fun getTracks(): List<Track> = withContext(Dispatchers.IO) {
+        try {
+            val result = mutableListOf<Track>()
+            Files.newDirectoryStream(trackJsonsDestination).use { stream ->
+                for (trackJson in stream) {
+                    val track = Json.decodeFromString<Track>(
+                        String(Files.readAllBytes(trackJson))
+                    )
+                    result.add(track)
+                }
+            }
+            result
+        } catch (ex: Exception) {
+            Log.e(TAG, "getTracks: $ex")
+            listOf()
+        }
     }
 
-    override suspend fun removeTrack(track: Track): Boolean {
+    override suspend fun removeTrack(track: Track): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val trackDestination = tracksDestination.resolve("${track.id}-track")
+            val trackCoverDestination = trackCoversDestination.resolve("${track.id}-cover")
+            val trackJsonDestination = tracksDestination.resolve("${track.id}.json")
 
+            Files.deleteIfExists(trackJsonDestination)
+            Files.deleteIfExists(trackDestination)
+            Files.deleteIfExists(trackCoverDestination)
+
+            true
+        } catch (ex: Exception) {
+            false
+        }
     }
-
 }

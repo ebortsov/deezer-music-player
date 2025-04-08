@@ -8,7 +8,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.Configuration
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
-import com.github.ebortsov.deezermusicplayer.download.TrackLocalDataSource
 import com.github.ebortsov.deezermusicplayer.download.database.TrackInfoDataSource
 import com.github.ebortsov.deezermusicplayer.download.database.TrackInfoDatabase
 import com.github.ebortsov.deezermusicplayer.download.general.FileDownloader

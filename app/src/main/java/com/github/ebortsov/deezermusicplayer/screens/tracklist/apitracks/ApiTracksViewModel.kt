@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.ebortsov.deezermusicplayer.data.TracksRepository
-import com.github.ebortsov.deezermusicplayer.download.TrackLocalDataSource
 import com.github.ebortsov.deezermusicplayer.model.Track
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow

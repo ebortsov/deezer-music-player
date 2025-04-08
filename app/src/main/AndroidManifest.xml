@@ -7,9 +7,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Needed for older APIs (according to DownloadManager docs) -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -18,7 +19,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DeezerMusicPlayer"
-        android:name=".App"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
@@ -38,6 +38,12 @@
                 <action android:name="androidx.media3.session.MediaSessionService" />
             </intent-filter>
         </service>
+
+        <!--Disable the default worker initialization-->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove"/>
     </application>
 
 </manifest>
