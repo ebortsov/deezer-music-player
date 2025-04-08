@@ -35,13 +35,10 @@ class TrackViewHolder(
             }
         }
 
-        if (trackIsRemote) {
-            // Load the image remotely
-            Glide.with(binding.root.context)
-                .load(track.album.coverUri.toString())
-                .placeholder(R.drawable.ic_image)
-                .into(binding.trackCoverImageView)
-        }
+        Glide.with(binding.root.context)
+            .load(track.album.coverUri.toString())
+            .placeholder(R.drawable.ic_image)
+            .into(binding.trackCoverImageView)
 
         binding.root.setOnClickListener { v -> onTrackClickListener.onClick(v, track) }
     }
