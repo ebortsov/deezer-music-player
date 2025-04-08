@@ -1,4 +1,4 @@
-package com.github.ebortsov.deezermusicplayer.screens.tracklist.adapter
+package com.github.ebortsov.deezermusicplayer.presentation.tracklist.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

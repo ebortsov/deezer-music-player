@@ -1,7 +1,5 @@
-package com.github.ebortsov.deezermusicplayer.screens.tracklist.adapter
+package com.github.ebortsov.deezermusicplayer.presentation.tracklist.adapter
 
-import android.graphics.BitmapFactory
-import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -9,7 +7,6 @@ import com.bumptech.glide.Glide
 import com.github.ebortsov.deezermusicplayer.databinding.TrackListItemBinding
 import com.github.ebortsov.deezermusicplayer.model.Track
 import com.github.ebortsov.deezermusicplayer.R
-import java.io.File
 
 fun interface OnTrackClickListener {
     fun onClick(view: View, track: Track)

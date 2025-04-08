@@ -1,7 +1,12 @@
-package com.github.ebortsov.deezermusicplayer.screens.tracklist.savedtracks
+package com.github.ebortsov.deezermusicplayer.presentation.tracklist.savedtracks
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.github.ebortsov.deezermusicplayer.App
 import com.github.ebortsov.deezermusicplayer.data.TracksRepository
 import com.github.ebortsov.deezermusicplayer.model.Track
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +22,7 @@ data class UiState(
 private const val TAG = "SavedTracksViewModel"
 
 class SavedTracksViewModel(
-    private val tracksRepository: TracksRepository = TracksRepository()
+    private val tracksRepository: TracksRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         UiState(
@@ -38,6 +43,15 @@ class SavedTracksViewModel(
         viewModelScope.launch {
             val tracks = tracksRepository.searchTrackInLocal(query)
             _uiState.update { it.copy(savedTracks = tracks) }
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val tracksRepository = (this[APPLICATION_KEY] as App).appContainer.tracksRepository
+                SavedTracksViewModel(tracksRepository)
+            }
         }
     }
 }

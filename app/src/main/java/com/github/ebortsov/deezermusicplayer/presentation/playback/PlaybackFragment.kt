@@ -1,4 +1,4 @@
-package com.github.ebortsov.deezermusicplayer.screens.playback
+package com.github.ebortsov.deezermusicplayer.presentation.playback
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -1,8 +1,13 @@
-package com.github.ebortsov.deezermusicplayer.screens.tracklist.apitracks
+package com.github.ebortsov.deezermusicplayer.presentation.tracklist.apitracks
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.github.ebortsov.deezermusicplayer.App
 import com.github.ebortsov.deezermusicplayer.data.TracksRepository
 import com.github.ebortsov.deezermusicplayer.model.Track
 import kotlinx.coroutines.CancellationException
@@ -24,7 +29,7 @@ data class UiState(
 private const val TAG = "ApiTracksViewModel"
 
 class ApiTracksViewModel(
-    private val tracksRepository: TracksRepository = TracksRepository(),
+    private val tracksRepository: TracksRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         UiState(
@@ -38,7 +43,12 @@ class ApiTracksViewModel(
     fun searchTracks(query: String) {
         // Send the query to the repository and check the result
         viewModelScope.launch {
-            _uiState.update { it.copy(searchQuery = query, loadingState = UiState.LoadingState.LOADING) }
+            _uiState.update {
+                it.copy(
+                    searchQuery = query,
+                    loadingState = UiState.LoadingState.LOADING
+                )
+            }
 
             try {
                 val tracks = tracksRepository.searchTrackInNetwork(query)
@@ -76,4 +86,14 @@ class ApiTracksViewModel(
             tracksRepository.downloadTrack(track)
         }
     }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val tracksRepository = (this[APPLICATION_KEY] as App).appContainer.tracksRepository
+                ApiTracksViewModel(tracksRepository)
+            }
+        }
+    }
 }
+
