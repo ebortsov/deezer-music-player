@@ -32,12 +32,17 @@ class TracksLocalDataSourceFile(
             Files.createDirectories(destination)
             check(Files.isWritable(destination))
         }
+
+        // All directories must be different
+        check(!Files.isSameFile(tracksDestination, trackCoversDestination))
+        check(!Files.isSameFile(tracksDestination, trackJsonsDestination))
+        check(!Files.isSameFile(trackJsonsDestination, trackCoversDestination))
     }
 
     override suspend fun downloadTrack(track: Track): Boolean {
         val trackDestinationUri = tracksDestination.resolve("${track.id}-track").toUri()
         val trackCoverDestinationUri = trackCoversDestination.resolve("${track.id}-cover").toUri()
-        val trackJsonDestinationUri = tracksDestination.resolve("${track.id}.json").toUri()
+        val trackJsonDestinationUri = trackJsonsDestination.resolve("${track.id}.json").toUri()
 
         val workRequest = OneTimeWorkRequestBuilder<TrackDownloadWorker>()
             .setInputData(
@@ -89,12 +94,13 @@ class TracksLocalDataSourceFile(
         try {
             val trackDestination = tracksDestination.resolve("${track.id}-track")
             val trackCoverDestination = trackCoversDestination.resolve("${track.id}-cover")
-            val trackJsonDestination = tracksDestination.resolve("${track.id}.json")
+            val trackJsonDestination = trackJsonsDestination.resolve("${track.id}.json")
 
             Files.deleteIfExists(trackJsonDestination)
             Files.deleteIfExists(trackDestination)
             Files.deleteIfExists(trackCoverDestination)
 
+            Log.i(TAG, "Track $track is deleted")
             true
         } catch (ex: Exception) {
             false

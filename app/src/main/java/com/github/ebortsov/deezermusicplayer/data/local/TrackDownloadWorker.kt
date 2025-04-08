@@ -31,7 +31,7 @@ class TrackDownloadWorker(
      * The download process takes three steps:
      * 1) Download the track itself
      * 2) Download the track cover
-     * 3) If the (1) and (2) are successful, then record the store the track as json file
+     * 3) If the (1) and (2) are successful, then store the track as json file
      */
     override suspend fun doWork(): Result {
         val track: Track
@@ -70,12 +70,13 @@ class TrackDownloadWorker(
             if (trackDownloadResult && trackCoverDownloadResult) {
                 val localTrack = track.copy(
                     previewUri = URI.create(trackDestination),
-                    album = track.album.copy(coverUri = URI.create(trackDestination))
+                    album = track.album.copy(coverUri = URI.create(trackCoverDestination))
                 )
 
                 // Save the file as json file
                 val trackJsonFile = File(URI.create(trackJsonDestination))
                 trackJsonFile.writeText(Json.encodeToString<Track>(localTrack))
+                Log.i(TAG, "Save track json to $trackJsonFile")
 
                 Log.i(TAG, "doWork: success")
                 Result.success()

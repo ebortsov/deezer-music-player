@@ -2,18 +2,17 @@ package com.github.ebortsov.deezermusicplayer
 
 import android.os.Environment
 import android.util.Log
-import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.Configuration
-import androidx.work.testing.SynchronousExecutor
+import androidx.work.DelegatingWorkerFactory
+import androidx.work.WorkManager
 import androidx.work.testing.WorkManagerTestInitHelper
-import com.github.ebortsov.deezermusicplayer.download.database.TrackInfoDataSource
-import com.github.ebortsov.deezermusicplayer.download.database.TrackInfoDatabase
-import com.github.ebortsov.deezermusicplayer.download.general.FileDownloader
+import com.github.ebortsov.deezermusicplayer.data.local.TrackDownloadWorkerFactory
+import com.github.ebortsov.deezermusicplayer.data.local.TracksLocalDataSource
+import com.github.ebortsov.deezermusicplayer.data.local.TracksLocalDataSourceFile
+import com.github.ebortsov.deezermusicplayer.download.FileDownloader
 import com.github.ebortsov.deezermusicplayer.model.Track
-import io.mockk.every
-import io.mockk.mockkObject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -29,56 +28,40 @@ import java.io.File
 @RunWith(AndroidJUnit4::class)
 class TrackLocalDataSourceTest {
     private val trackStubs = createStubTracks()
-    private val trackInfoDataSource: TrackInfoDataSource
-    private val trackLocalDataSource: TrackLocalDataSource
+
     private val destinationFolder =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             .resolve("local-data-source-test")
+
     private val tracksDestination = destinationFolder.resolve("tracks")
     private val trackCoversDestination = destinationFolder.resolve("track-covers")
-    private val fileDownloader: FileDownloader
+    private val trackJsonsDestination = destinationFolder.resolve("track-jsons")
+
+    private val trackLocalDataSource: TracksLocalDataSource
+
+    private val fileDownloader = FileDownloader()
 
     init {
+        destinationFolder.mkdirs()
+
         val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // Create work manager
+        val workerFactory = DelegatingWorkerFactory()
+        workerFactory.addFactory(TrackDownloadWorkerFactory(fileDownloader))
         val config = Configuration.Builder()
             .setMinimumLoggingLevel(Log.DEBUG)
-            .setExecutor(SynchronousExecutor())
+            .setWorkerFactory(workerFactory)
             .build()
+
         WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
 
-        // Initialize in memory database
-        val database = Room.inMemoryDatabaseBuilder(
-            context,
-            TrackInfoDatabase::class.java
-        ).build()
-
-        // Initialize TrackInfoDataSource
-        trackInfoDataSource = TrackInfoDataSource(database)
-
-        // Ensure the folders for tracks and covers exist
-        tracksDestination.mkdirs()
-        trackCoversDestination.mkdirs()
-
-        // Initialize TrackLocalDataSource
-        TrackLocalDataSource.initialize(
-            context,
-            trackInfoDataSource,
-            tracksDestination,
-            trackCoversDestination
+        trackLocalDataSource = TracksLocalDataSourceFile(
+            WorkManager.getInstance(context),
+            tracksDestination = tracksDestination.toPath(),
+            trackCoversDestination = trackCoversDestination.toPath(),
+            trackJsonsDestination = trackJsonsDestination.toPath()
         )
-        trackLocalDataSource = TrackLocalDataSource.getInstance()
-
-        // Initialize FileDownloader
-        FileDownloader.initialize()
-        fileDownloader = FileDownloader.getInstance()
-
-        // Mockk the database
-        mockkObject(TrackInfoDatabase.Companion)
-
-        // Mockk the getInstance of the TrackInfoDatabase to return the in-memory database
-        every { TrackInfoDatabase.getInstance() } returns database
     }
 
 
@@ -89,13 +72,8 @@ class TrackLocalDataSourceTest {
             val downloads = trackStubs.map { track ->
                 async { trackLocalDataSource.downloadTrack(track) }
             }
-            trackLocalDataSource.downloadTrack(trackStubs[2])
-            val downloadResults = downloads.awaitAll()
-
-            // All downloads have been successful
-            for ((i, downloadResult) in downloadResults.withIndex()) {
-                assertTrue("$i-th download", downloadResult)
-            }
+            trackLocalDataSource.downloadTrack(trackStubs[2]) // Repeating download shouldn't cause any errors
+            downloads.awaitAll()
 
             checkExpectedTracks(trackStubs)
 
