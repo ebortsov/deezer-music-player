@@ -1,7 +1,6 @@
 package com.github.ebortsov.deezermusicplayer
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -9,11 +8,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.createGraph
 import androidx.navigation.fragment.findNavController
 import com.github.ebortsov.deezermusicplayer.databinding.ActivityMainBinding
-import com.github.ebortsov.deezermusicplayer.screens.tracklist.apitracks.ApiTracksDestination
-import com.github.ebortsov.deezermusicplayer.screens.tracklist.apitracks.apiTracksDestination
-import com.github.ebortsov.deezermusicplayer.screens.playback.playbackDestination
-import com.github.ebortsov.deezermusicplayer.screens.tracklist.savedtracks.SavedTracksDestination
-import com.github.ebortsov.deezermusicplayer.screens.tracklist.savedtracks.savedTracksDestination
+import com.github.ebortsov.deezermusicplayer.presentation.tracklist.apitracks.ApiTracksDestination
+import com.github.ebortsov.deezermusicplayer.presentation.tracklist.apitracks.apiTracksDestination
+import com.github.ebortsov.deezermusicplayer.presentation.playback.playbackDestination
+import com.github.ebortsov.deezermusicplayer.presentation.tracklist.savedtracks.SavedTracksDestination
+import com.github.ebortsov.deezermusicplayer.presentation.tracklist.savedtracks.savedTracksDestination
 
 private const val TAG = "MainActivity"
 

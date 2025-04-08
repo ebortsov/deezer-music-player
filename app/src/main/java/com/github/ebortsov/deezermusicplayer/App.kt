@@ -2,23 +2,28 @@ package com.github.ebortsov.deezermusicplayer
 
 import android.app.Application
 import android.os.Environment
-import com.github.ebortsov.deezermusicplayer.download.TrackLocalDataSource
-import com.github.ebortsov.deezermusicplayer.download.database.TrackInfoDataSource
-import com.github.ebortsov.deezermusicplayer.download.database.TrackInfoDatabase
-import com.github.ebortsov.deezermusicplayer.download.general.FileDownloader
+import androidx.work.Configuration
+import androidx.work.DelegatingWorkerFactory
+import com.github.ebortsov.deezermusicplayer.data.local.TrackDownloadWorkerFactory
+import com.github.ebortsov.deezermusicplayer.di.AppContainer
+import com.github.ebortsov.deezermusicplayer.di.DefaultAppContainer
 
-class App : Application() {
+class App : Application(), Configuration.Provider {
+    lateinit var appContainer: AppContainer
+
     override fun onCreate() {
         super.onCreate()
 
-        TrackInfoDatabase.initialize(applicationContext)
-        FileDownloader.initialize()
+        appContainer = DefaultAppContainer(applicationContext)
+    }
 
-        TrackLocalDataSource.initialize(
-            applicationContext,
-            TrackInfoDataSource(TrackInfoDatabase.getInstance()),
-            applicationContext.getExternalFilesDir(Environment.DIRECTORY_MUSIC)!!,
-            applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
-        )
+    override val workManagerConfiguration: Configuration get() {
+        val workerFactory = DelegatingWorkerFactory()
+        workerFactory.addFactory(TrackDownloadWorkerFactory(appContainer.fileDownloader))
+
+        return Configuration.Builder()
+            .setMinimumLoggingLevel(android.util.Log.INFO)
+            .setWorkerFactory(workerFactory)
+            .build()
     }
 }
