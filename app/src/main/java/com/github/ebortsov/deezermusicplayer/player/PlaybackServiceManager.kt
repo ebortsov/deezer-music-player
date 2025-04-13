@@ -4,26 +4,31 @@ import android.content.ComponentName
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 
 
 private const val TAG = "PlaybackServiceManager"
 
-// TODO: handle potential exceptions
-// TODO: add comments
 /**
  * Lifecycle aware class that acts as an
- * interlayer between the Service and some other component (Fragment or Activity)
+ * disposable provider and initializer of the MediaController
+ *
+ * Brief description
+ * 1) lifecycleOwner reached the ON_START state
+ *
+ * 2) MediaController is initialized and the onControllerIsReadyListener is called (if defined)
+ * The initialized MediaController is passed to the onControllerIsReadyListener
+ *
+ * 3) The lifecycleOwner reaches the ON_STOP state. The MediaController resources are released
+ * and any instance fetched with this class (i.e. passed to the callback) is no longer valid
  */
+
 class PlaybackServiceManager(
     lifecycleOwner: LifecycleOwner,
     private val context: Context
@@ -37,20 +42,18 @@ class PlaybackServiceManager(
 
     private var onControllerIsReadyListener: OnControllerIsReadyListener? = null
 
-    override fun onCreate(owner: LifecycleOwner) {
+    override fun onStart(owner: LifecycleOwner) {
         owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                initializeController()
+            initializeController()
 
-                // Run the listener once the controller has been created
-                onControllerIsReadyListener?.onControllerReady(controller!!)
-            }
+            onControllerIsReadyListener?.onControllerReady(controller!!)
         }
     }
 
     override fun onStop(owner: LifecycleOwner) {
         // Release the controller when the `lifecycleOwner` reaches the `ON_STOP` state
         releaseController()
+        owner.lifecycle.removeObserver(this)
     }
 
     private suspend fun initializeController() {

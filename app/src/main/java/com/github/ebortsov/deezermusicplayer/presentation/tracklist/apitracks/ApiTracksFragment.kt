@@ -2,6 +2,7 @@ package com.github.ebortsov.deezermusicplayer.presentation.tracklist.apitracks
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +28,7 @@ import com.github.ebortsov.deezermusicplayer.presentation.tracklist.adapter.Trac
 import com.github.ebortsov.deezermusicplayer.presentation.playback.PlaybackDestination
 import com.github.ebortsov.deezermusicplayer.presentation.tracklist.adapter.OnTrackDownloadListener
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -42,9 +44,6 @@ class ApiTracksFragment : Fragment() {
     private lateinit var binding: FragmentTracksBinding
     private lateinit var trackListAdapter: TrackListAdapter
     private val viewModel: ApiTracksViewModel by viewModels { ApiTracksViewModel.Factory }
-    private val playbackServiceManager by lazy {
-        PlaybackServiceManager(this, requireContext())
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,16 +55,23 @@ class ApiTracksFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        playbackServiceManager.setOnControllerIsReadyListener { mediaController ->
-            setupUiControls(mediaController)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val playbackServiceManager = PlaybackServiceManager(
+                    this@ApiTracksFragment,
+                    requireContext()
+                )
+                playbackServiceManager.setOnControllerIsReadyListener { mediaController ->
+                    setupUiControls(mediaController)
 
-            // Start tracking the state and update the views correspondingly
-            viewLifecycleOwner.lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.uiState.collectLatest { uiState ->
-                        updateUi(uiState)
+                    launch {
+                        viewModel.uiState.collectLatest { uiState ->
+                            updateUi(uiState)
+                        }
                     }
                 }
+
+                awaitCancellation()
             }
         }
     }

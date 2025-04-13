@@ -17,9 +17,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.fragment.fragment
 import com.bumptech.glide.Glide
 import com.github.ebortsov.deezermusicplayer.databinding.FragmentPlaybackBinding
-import com.github.ebortsov.deezermusicplayer.player.PlaybackServiceManager
 import com.github.ebortsov.deezermusicplayer.R
+import com.github.ebortsov.deezermusicplayer.player.PlaybackServiceManager
 import com.github.ebortsov.deezermusicplayer.utils.formatMilliseconds
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -27,6 +28,7 @@ import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 private const val SEEKBAR_MAX = 1000
+private const val TAG = "PlaybackFragment"
 
 @Serializable
 object PlaybackDestination
@@ -39,10 +41,6 @@ fun NavGraphBuilder.playbackDestination() {
 * Screen that connects to the `PlaybackService` and show the current playback state
 * */
 class PlaybackFragment : Fragment() {
-    private val playbackServiceManager by lazy {
-        PlaybackServiceManager(this, requireContext())
-    }
-
     private lateinit var binding: FragmentPlaybackBinding
 
     // Flag that shows if the user is currently dragging the seekbar
@@ -59,18 +57,26 @@ class PlaybackFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        playbackServiceManager.setOnControllerIsReadyListener { mediaController ->
-            viewLifecycleOwner.lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    // Reset the seekbar interaction flag
-                    isUserUsingSeekbar = false
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Reset the seekbar interaction flag
+                isUserUsingSeekbar = false
 
-                    startMonitoringPlayer(mediaController)
+                val playbackServiceManager =
+                    PlaybackServiceManager(
+                        this@PlaybackFragment,
+                        requireContext()
+                    )
+
+                playbackServiceManager.setOnControllerIsReadyListener { mediaController ->
+                    setupUiControls(mediaController)
+                    launch {
+                        startMonitoringPlayer(mediaController)
+                    }
                 }
-            }
 
-            // Add necessary listeners to the buttons
-            setupUiControls(mediaController)
+                awaitCancellation()
+            }
         }
     }
 
